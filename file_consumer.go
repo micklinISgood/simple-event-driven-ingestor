@@ -4,19 +4,17 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-
 	"github.com/fsnotify/fsnotify"
 )
-
 type FileConsumer struct {
 	filePath string
 	offset   int64
 	file     *os.File
 	reader   *bufio.Reader
 	watcher  *fsnotify.Watcher
+	done     chan struct{}
 }
 
-// NewFileConsumer initializes the consumer
 func NewFileConsumer(filePath string) (*FileConsumer, error) {
 	f, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
@@ -41,28 +39,28 @@ func NewFileConsumer(filePath string) (*FileConsumer, error) {
 		file:     f,
 		reader:   bufio.NewReader(f),
 		watcher:  watcher,
+		done:     make(chan struct{}),
 		offset:   0,
 	}, nil
 }
 
-// Start begins consuming the file: first existing lines, then tail new writes
 func (fc *FileConsumer) Start() {
-	// Read existing lines
-	fc.file.Seek(0, os.SEEK_SET)
-	for {
-		line, err := fc.reader.ReadString('\n')
-		if err != nil {
-			break
-		}
-		fc.offset += int64(len(line))
-		fmt.Println("Consumer (existing):", line)
-	}
-
-	// Start tailing new writes
 	go func() {
 		defer fc.file.Close()
 		defer fc.watcher.Close()
 
+		// Read existing lines
+		fc.file.Seek(0, os.SEEK_SET)
+		for {
+			line, err := fc.reader.ReadString('\n')
+			if err != nil {
+				break
+			}
+			fc.offset += int64(len(line))
+			fmt.Println("Consumer (existing):", line)
+		}
+
+		// Tail new writes
 		for {
 			select {
 			case event := <-fc.watcher.Events:
@@ -80,7 +78,14 @@ func (fc *FileConsumer) Start() {
 				}
 			case err := <-fc.watcher.Errors:
 				fmt.Println("Watcher error:", err)
+			case <-fc.done:
+                                fmt.Println("Consumer stopped")
+				return
 			}
 		}
 	}()
+}
+
+func (fc *FileConsumer) Stop() {
+	close(fc.done)
 }
