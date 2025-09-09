@@ -37,7 +37,7 @@ func NewEventIngestor(filePath string, bufferSize int, flushTimer time.Duration)
 		bufferSize: bufferSize,
 		flushTimer: flushTimer,
 		ch:         make(chan Event, bufferSize),
-                done:       make(chan struct{}),
+		done:       make(chan struct{}),
 	}, nil
 }
 
