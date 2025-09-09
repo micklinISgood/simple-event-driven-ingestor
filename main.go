@@ -40,7 +40,7 @@ func main() {
 			ingestor.Push(Event{ID: i, Data: fmt.Sprintf("event-%d", i)})
 			time.Sleep(50 * time.Millisecond)
 		}
-                ingestor.Stop()
+		ingestor.Stop()
 		fc.Stop()
 	}()
 
