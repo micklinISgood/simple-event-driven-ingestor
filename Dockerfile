@@ -5,8 +5,8 @@ RUN apk add --no-cache git
 
 WORKDIR /app
 
-# Copy go.mod and go.sum first
-COPY go.mod go.sum ./
+# Copy go.mod first
+COPY go.mod ./
 
 # Download all modules, including fsnotify
 RUN go mod download
@@ -23,4 +23,3 @@ RUN mkdir /data
 VOLUME /data
 
 CMD ["./wal_app"]
-

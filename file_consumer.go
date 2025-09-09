@@ -79,7 +79,7 @@ func (fc *FileConsumer) Start() {
 			case err := <-fc.watcher.Errors:
 				fmt.Println("Watcher error:", err)
 			case <-fc.done:
-                                fmt.Println("Consumer stopped")
+				fmt.Println("Consumer stopped")
 				return
 			}
 		}
