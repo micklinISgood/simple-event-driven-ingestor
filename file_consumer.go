@@ -73,7 +73,7 @@ func (fc *FileConsumer) Start() {
 							break
 						}
 						fc.offset += int64(len(line))
-						fmt.Println("Consumer (new):", line)
+						fmt.Println("Consumer:", line, " is ready to produce to kafka.")
 					}
 				}
 			case err := <-fc.watcher.Errors:

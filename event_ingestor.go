@@ -20,6 +20,7 @@ type EventIngestor struct {
 	bufferSize int
 	flushTimer time.Duration
 	ch         chan Event
+	done	   chan struct{}
 }
 
 // NewEventIngestor initializes the ingestor
@@ -36,6 +37,7 @@ func NewEventIngestor(filePath string, bufferSize int, flushTimer time.Duration)
 		bufferSize: bufferSize,
 		flushTimer: flushTimer,
 		ch:         make(chan Event, bufferSize),
+                done:       make(chan struct{}),
 	}, nil
 }
 
@@ -58,6 +60,8 @@ func (ei *EventIngestor) Start() {
 				if len(ei.buffer) > 0 {
 					ei.flush()
 				}
+			case <-ei.done:
+ 				return
 			}
 		}
 	}()
@@ -66,6 +70,11 @@ func (ei *EventIngestor) Start() {
 // Push adds a new event to the ingestor
 func (ei *EventIngestor) Push(e Event) {
 	ei.ch <- e
+}
+
+
+func (ei *EventIngestor) Stop() {
+	close(ei.done)
 }
 
 // flush writes buffered events to the file

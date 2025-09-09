@@ -40,10 +40,11 @@ func main() {
 			ingestor.Push(Event{ID: i, Data: fmt.Sprintf("event-%d", i)})
 			time.Sleep(50 * time.Millisecond)
 		}
+                ingestor.Stop()
 		fc.Stop()
 	}()
 
 	// Wait for both goroutines to finish
 	wg.Wait()
-	fmt.Println("All events produced and consumed. Check /data/wal.log")
+	fmt.Println("All events produced and consumed. Check ", walPath)
 }
