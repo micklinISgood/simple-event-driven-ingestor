@@ -19,7 +19,7 @@ func main() {
 	ingestor.Start() // internally launches flushing goroutine
 
 	// Initialize FileConsumer
-	fc, err := NewFileConsumer(walPath)
+	fc, err := NewFileConsumer(walPath, ingestor.Done())
 	if err != nil {
 		panic(err)
 	}
@@ -41,10 +41,10 @@ func main() {
 			time.Sleep(50 * time.Millisecond)
 		}
 		ingestor.Stop()
-		fc.Stop()
 	}()
 
 	// Wait for both goroutines to finish
 	wg.Wait()
 	fmt.Println("All events produced and consumed. Check ", walPath)
+	time.Sleep(10 * time.Second)
 }

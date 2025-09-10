@@ -61,6 +61,10 @@ func (ei *EventIngestor) Start() {
 					ei.flush()
 				}
 			case <-ei.done:
+				fmt.Println("stop")
+				if len(ei.buffer) > 0 {
+					ei.flush()
+				}
  				return
 			}
 		}
@@ -77,6 +81,9 @@ func (ei *EventIngestor) Stop() {
 	close(ei.done)
 }
 
+func (ei *EventIngestor) Done() <-chan struct{} {
+    return ei.done
+}
 // flush writes buffered events to the file
 func (ei *EventIngestor) flush() {
 	for _, e := range ei.buffer {
